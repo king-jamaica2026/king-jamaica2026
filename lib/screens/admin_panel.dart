@@ -798,8 +798,8 @@ class _AdminPanelState extends State<AdminPanel> {
                   if (_isUploading)
                     const CircularProgressIndicator()
                   else
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment. center,
                       children: [
                         ElevatedButton.icon(
                           onPressed: () async {
@@ -884,131 +884,139 @@ class _AdminPanelState extends State<AdminPanel> {
       context: context,
       barrierDismissible: !_isUploading,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: Text(isEditing ? 'Edit Product' : 'Add Product'),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<int>(
-                    value: selectedCategoryId,
-                    decoration: const InputDecoration(labelText: 'Category'),
-                    items: _categories.map((cat) => DropdownMenuItem<int>(
-                      value: cat.id,
-                      child: Text('${cat.arabicName} (${cat.englishName})'),
-                    )).toList(),
-                    onChanged: (value) => setDialogState(() => selectedCategoryId = value),
-                    validator: (v) => v == null ? 'Please select a category' : null,
+        builder: (ctx, setDialogState) => Expanded(
+          child: AlertDialog(
+            title: Text(isEditing ? 'Edit Product' : 'Add Product'),
+            content: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                         Container(
+                           constraints: BoxConstraints(maxWidth: 260),  // Set a max width
+                           child: DropdownButtonFormField<int>(
+                             isExpanded: true,
+                             value: selectedCategoryId,
+                            decoration: const InputDecoration(labelText: 'Category'),
+                            items: _categories.map((cat) => DropdownMenuItem<int>(
+                              value: cat.id,
+                              child: Text('${cat.arabicName} (${cat.englishName})'),
+                            )).toList(),
+                            onChanged: (value) => setDialogState(() => selectedCategoryId = value),
+                            validator: (v) => v == null ? 'Please select a category' : null,
+                                                 ),
+                         ),
+                      TextFormField(
+                        controller: nameArController,
+                        decoration: const InputDecoration(labelText: 'Arabic Name'),
+                        validator: (v) => v?.trim().isEmpty ?? true ? 'Required' : null,
+                      ),
+                      TextFormField(
+                        controller: nameEnController,
+                        decoration: const InputDecoration(labelText: 'English Name'),
+                        validator: (v) => v?.trim().isEmpty ?? true ? 'Required' : null,
+                      ),
+                      TextFormField(
+                        controller: priceController,
+                        decoration: const InputDecoration(labelText: 'Price (EGP)'),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        validator: (v) {
+                          if (v?.trim().isEmpty ?? true) return 'Required';
+                          if (int.tryParse(v!) == null) return 'Invalid number';
+                          return null;
+                        },
+                      ),
+                      // TextFormField(
+                      //   controller: imagePathController,
+                      //   decoration: const InputDecoration(
+                      //     labelText: 'Image URL',
+                      //     hintText: 'Will be filled automatically when uploading',
+                      //   ),
+                      //   readOnly: true, // Optional: make it read-only since we use picker
+                      // ),
+                      const SizedBox(height: 12),
+                      if (_isUploading)
+                        const CircularProgressIndicator()
+                      else
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final imageUrl = await _pickAndUploadImage('products');
+                            if (imageUrl != null) {
+                              setDialogState(() => imagePathController.text = imageUrl);
+                            }
+                          },
+                          icon: const Icon(Icons.cloud_upload),
+                          label: const Text('Upload Image'),
+                        ),
+                      const SizedBox(height: 12),
+                      _buildImagePreview(imagePathController.text),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: descArController,
+                        decoration: const InputDecoration(labelText: 'Arabic Description'),
+                        maxLines: 2,
+                      ),
+                      TextFormField(
+                        controller: descEnController,
+                        decoration: const InputDecoration(labelText: 'English Description'),
+                        maxLines: 2,
+                      ),
+                      SwitchListTile(
+                        title: const Text('Available'),
+                        value: isAvailable,
+                        onChanged: (value) => setDialogState(() => isAvailable = value),
+                      ),
+                    ],
                   ),
-                  TextFormField(
-                    controller: nameArController,
-                    decoration: const InputDecoration(labelText: 'Arabic Name'),
-                    validator: (v) => v?.trim().isEmpty ?? true ? 'Required' : null,
-                  ),
-                  TextFormField(
-                    controller: nameEnController,
-                    decoration: const InputDecoration(labelText: 'English Name'),
-                    validator: (v) => v?.trim().isEmpty ?? true ? 'Required' : null,
-                  ),
-                  TextFormField(
-                    controller: priceController,
-                    decoration: const InputDecoration(labelText: 'Price (EGP)'),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) {
-                      if (v?.trim().isEmpty ?? true) return 'Required';
-                      if (int.tryParse(v!) == null) return 'Invalid number';
-                      return null;
-                    },
-                  ),
-                  // TextFormField(
-                  //   controller: imagePathController,
-                  //   decoration: const InputDecoration(
-                  //     labelText: 'Image URL',
-                  //     hintText: 'Will be filled automatically when uploading',
-                  //   ),
-                  //   readOnly: true, // Optional: make it read-only since we use picker
-                  // ),
-                  const SizedBox(height: 12),
-                  if (_isUploading)
-                    const CircularProgressIndicator()
-                  else
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        final imageUrl = await _pickAndUploadImage('products');
-                        if (imageUrl != null) {
-                          setDialogState(() => imagePathController.text = imageUrl);
-                        }
-                      },
-                      icon: const Icon(Icons.cloud_upload),
-                      label: const Text('Upload Image'),
-                    ),
-                  const SizedBox(height: 12),
-                  _buildImagePreview(imagePathController.text),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: descArController,
-                    decoration: const InputDecoration(labelText: 'Arabic Description'),
-                    maxLines: 2,
-                  ),
-                  TextFormField(
-                    controller: descEnController,
-                    decoration: const InputDecoration(labelText: 'English Description'),
-                    maxLines: 2,
-                  ),
-                  SwitchListTile(
-                    title: const Text('Available'),
-                    value: isAvailable,
-                    onChanged: (value) => setDialogState(() => isAvailable = value),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: _isUploading ? null : () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: _isUploading
-                  ? null
-                  : () async {
-                if (!formKey.currentState!.validate() || selectedCategoryId == null) return;
+            actions: [
+              TextButton(
+                onPressed: _isUploading ? null : () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: _isUploading
+                    ? null
+                    : () async {
+                  if (!formKey.currentState!.validate() || selectedCategoryId == null) return;
 
-                try {
-                  final price = int.parse(priceController.text);
+                  try {
+                    final price = int.parse(priceController.text);
 
-                  final newProduct = Product(
-                    id: isEditing ? product!.id : _getNextProductId(),
-                    categoryId: selectedCategoryId!,
-                    arabicName: nameArController.text.trim(),
-                    englishName: nameEnController.text.trim(),
-                    price: price,
-                    imagePath: imagePathController.text,
-                    englishDescription: descEnController.text.trim(),
-                    arabicDescription: descArController.text.trim(),
-                    isAvailable: isAvailable,
-                  );
+                    final newProduct = Product(
+                      id: isEditing ? product!.id : _getNextProductId(),
+                      categoryId: selectedCategoryId!,
+                      arabicName: nameArController.text.trim(),
+                      englishName: nameEnController.text.trim(),
+                      price: price,
+                      imagePath: imagePathController.text,
+                      englishDescription: descEnController.text.trim(),
+                      arabicDescription: descArController.text.trim(),
+                      isAvailable: isAvailable,
+                    );
 
-                  if (isEditing) {
-                    await _db.upsertProduct(newProduct);
-                  } else {
-                    await _db.upsertProduct(newProduct);
+                    if (isEditing) {
+                      await _db.upsertProduct(newProduct);
+                    } else {
+                      await _db.upsertProduct(newProduct);
+                    }
+
+                    await _loadData();
+                    if (ctx.mounted) Navigator.pop(ctx);
+                    _showSnackBar(isEditing ? 'Product updated' : 'Product added successfully');
+                  } catch (e) {
+                    _showSnackBar('Error saving product: $e', isError: true);
                   }
-
-                  await _loadData();
-                  if (ctx.mounted) Navigator.pop(ctx);
-                  _showSnackBar(isEditing ? 'Product updated' : 'Product added successfully');
-                } catch (e) {
-                  _showSnackBar('Error saving product: $e', isError: true);
-                }
-              },
-              child: Text(isEditing ? 'Update' : 'Add'),
-            ),
-          ],
+                },
+                child: Text(isEditing ? 'Update' : 'Add'),
+              ),
+            ],
+          ),
         ),
       ),
     );
