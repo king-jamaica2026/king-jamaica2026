@@ -80,12 +80,12 @@ class _SplashScreenState extends State<SplashScreen> {
             Image.asset(
               'assets/logo.png',
               width: context.responsive<double>(
-                mobile: 220.0,
+                mobile: 250.0,
                 tablet: 180.0,
                 desktop: 240.0,
               ),
               height: context.responsive<double>(
-                mobile: 220.0,
+                mobile: 250.0,
                 tablet: 180.0,
                 desktop: 240.0,
               ),
@@ -97,17 +97,17 @@ class _SplashScreenState extends State<SplashScreen> {
               desktop: 40.0,
             )),
             // Responsive text
-            Text(
-              'King Jamaica Caffe',
-              style: TextStyle(
-                fontSize: context.responsive<double>(
-                  mobile: 24.0,
-                  tablet: 30.0,
-                  desktop: 36.0,
-                ),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            // Text(
+            //   'King Jamaica Caffe',
+            //   style: TextStyle(
+            //     fontSize: context.responsive<double>(
+            //       mobile: 24.0,
+            //       tablet: 30.0,
+            //       desktop: 36.0,
+            //     ),
+            //     fontWeight: FontWeight.bold,
+            //   ),
+            // ),
             SizedBox(height: context.responsive<double>(
               mobile: 10.0,
               tablet: 15.0,
